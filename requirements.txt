@@ -3,3 +3,12 @@ uvicorn
 pydantic
 pytest
 httpx
+scikit-learn
+pandas
+numpy
+joblib
+xgboost
+mlflow
+evidently
+schedule
+
