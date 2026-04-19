@@ -1,0 +1,28 @@
+# Web framework
+fastapi
+uvicorn[standard]
+pydantic
+
+# ML core
+scikit-learn
+xgboost
+numpy
+pandas
+joblib
+scipy
+
+# MLOps
+mlflow
+dvc
+evidently
+schedule
+
+# Testing
+pytest
+pytest-asyncio
+httpx
+
+# API docs / utilities
+python-multipart
+
+prometheus-fastapi-instrumentator

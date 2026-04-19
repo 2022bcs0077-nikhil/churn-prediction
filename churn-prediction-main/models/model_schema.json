@@ -1,0 +1,27 @@
+{
+  "feature_columns": [
+    "monthly_charges",
+    "monthly_charge_change",
+    "contract_encoded",
+    "internet_encoded",
+    "tenure_bucket",
+    "ticket_count_7d",
+    "ticket_count_30d",
+    "ticket_count_90d",
+    "avg_sentiment_score",
+    "ticket_cat_complaint",
+    "ticket_cat_billing",
+    "ticket_cat_technical",
+    "ticket_cat_other",
+    "mean_days_between_tickets"
+  ],
+  "model_type": "random_forest",
+  "trained_at": "2026-04-18T17:07:31.243591",
+  "metrics": {
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "avg_precision": 0.9999999999999998,
+    "precision": 1.0,
+    "recall": 1.0
+  }
+}

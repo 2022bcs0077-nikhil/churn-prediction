@@ -1,0 +1,94 @@
+version: "3.9"
+
+services:
+  # ── ML Inference API ──
+  ml-api:
+    build:
+      context: .
+      target: inference
+    container_name: churn-ml-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=models/churn_model.pkl
+      - SCHEMA_PATH=models/model_schema.json
+      - HIGH_RISK_THRESHOLD=0.65
+      - MEDIUM_RISK_THRESHOLD=0.35
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - model-store:/app/models
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── MLflow Tracking Server ──
+  mlflow:
+    image: python:3.11-slim
+    container_name: mlflow-server
+    command: >
+      sh -c "pip install mlflow -q &&
+             mlflow server
+               --host 0.0.0.0
+               --port 5000
+               --backend-store-uri sqlite:///mlflow.db
+               --default-artifact-root /mlflow-artifacts"
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-db:/app
+      - mlflow-artifacts:/mlflow-artifacts
+    restart: unless-stopped
+
+  # ── Retraining Daemon ──
+  retrain-daemon:
+    build:
+      context: .
+      target: inference
+    container_name: churn-retrain-daemon
+    command: python mlops/retrain.py --mode daemon
+    environment:
+      - MODEL_DIR=models
+      - DATA_DIR=data
+      - MLFLOW_URI=http://mlflow:5000
+      - MIN_F1_THRESHOLD=0.70
+      - DRIFT_RETRAIN_THRESHOLD=0.20
+    volumes:
+      - model-store:/app/models
+      - ./data:/app/data
+      - ./drift_reports:/app/drift_reports
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+
+  # ── Prometheus Metrics (optional observability) ──
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root # needed to run apt-get
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+
+volumes:
+  model-store:
+  mlflow-db:
+  mlflow-artifacts:
