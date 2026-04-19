@@ -8,4 +8,8 @@ services:
       - "8000:8000"
     environment:
       - ENV=production
-    restart: unless-stopped
+    command: >
+      sh -c "rm -f /app/mlflow.db &&
+             python -m mlops.experiment_tracking &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    restart: "no"
