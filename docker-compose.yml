@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  churn-api:
+    image: scarlynx/churn-risk-api:latest
+    container_name: churn-risk-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+    restart: unless-stopped
