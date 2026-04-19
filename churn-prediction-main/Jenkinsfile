@@ -18,7 +18,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/2022bcs0028-klnreddy/churn-prediction.git'
+                    url: 'https://github.com/2022bcs0077-nikhil/churn-prediction.git'
             }
         }
 
